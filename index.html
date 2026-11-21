@@ -104,3 +104,32 @@
     <div class="tab-content" id="tab-add">
         <h3 style="margin-top:0;">Подключить новый датчик</h3>
         <p style="font-size:0.85rem; color:#6b7280;">Установка занимает 15 минут без вызова мастера: заведите плоский шлейф датчика DS18B20 под уплотнитель дверцы и добавьте устройство ниже.</p>
+        <div style="background:white; padding:16px; border-radius:16px;">
+            <label style="font-size:0.85rem; font-weight:600;">Название холодильника:</label>
+            <input type="text" id="newFridgeName" placeholder="Например: Холодильник Бар" style="width:100%; padding:12px; margin:8px 0 14px; border:1px solid #d1d5db; border-radius:10px;">
+            <label style="font-size:0.85rem; font-weight:600;">ID датчика (с QR-кода на корпусе):</label>
+            <input type="text" value="CG-ESP32-8841" readonly style="width:100%; padding:12px; margin:8px 0 14px; border:1px solid #d1d5db; border-radius:10px; background:#f9fafb; color:#6b7280;">
+            <button class="btn btn-primary" onclick="addSensor()">➕ Привязать датчик</button>
+        </div>
+    </div>
+
+    <div class="tab-content" id="tab-ai">
+        <div class="chat-area" id="chatArea">
+            <div class="bubble ai">Здравствуйте! Я ИИ-инспектор <b>ColdGuard</b>. Подскажу нормы хранения по СанПиН, помогу при поломке холодильника или рассчитаю окупаемость.</div>
+        </div>
+        <div class="chat-bar">
+            <input type="text" id="aiInput" placeholder="Спросите про СанПиН или цену..." onkeypress="if(event.key==='Enter') askAI()">
+            <button class="btn btn-primary" style="width:auto; margin:0; padding:0 18px;" onclick="askAI()">➤</button>
+        </div>
+    </div>
+
+    <div class="bottom-nav">
+        <div class="nav-item active" onclick="switchTab('sensors', this)">
+            <span class="nav-icon">🌡️</span>
+            <span>Датчики</span>
+        </div>
+        <div class="nav-item" onclick="switchTab('journal', this)">
+            <span class="nav-icon">📋</span>
+            <span>Журнал</span>
+        </div>
+        <div class="nav-item" onclick="switchTab('add', this)">
