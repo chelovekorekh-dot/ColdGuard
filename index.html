@@ -1,0 +1,148 @@
+﻿
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>ColdGuard App</title>
+    <style>
+        * { box-sizing: border-box; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; }
+        body { margin: 0; background: #111827; display: flex; justify-content: center; align-items: center; min-height: 100vh; }
+        .phone-frame { width: 100%; max-width: 414px; height: 100vh; max-height: 850px; background: #f3f6fa; display: flex; flex-direction: column; position: relative; overflow: hidden; box-shadow: 0 25px 50px rgba(0,0,0,0.5); }
+        @media (min-width: 500px) { .phone-frame { border-radius: 36px; border: 8px solid #1f2937; height: 812px; } }
+        
+        /* Шапка приложения */
+        .app-header { background: #0055ff; color: white; padding: 18px 20px 16px; display: flex; justify-content: space-between; align-items: center; }
+        .app-header h2 { margin: 0; font-size: 1.25rem; display: flex; align-items: center; gap: 8px; }
+        .status-pill { background: rgba(255,255,255,0.2); padding: 4px 10px; border-radius: 12px; font-size: 0.75rem; }
+
+        /* Контент вкладок */
+        .tab-content { flex: 1; overflow-y: auto; padding: 16px; display: none; }
+        .tab-content.active { display: block; }
+
+        /* Карточки датчиков */
+        .sensor-card { background: white; border-radius: 16px; padding: 16px; margin-bottom: 14px; box-shadow: 0 4px 12px rgba(0,0,0,0.04); border-left: 5px solid #10b981; transition: 0.3s; }
+        .sensor-card.alarm { border-left-color: #ef4444; background: #fef2f2; animation: shake 0.4s; }
+        .sensor-top { display: flex; justify-content: space-between; font-size: 0.85rem; color: #6b7280; }
+        .sensor-name { font-size: 1.05rem; font-weight: 700; color: #111827; margin: 4px 0; }
+        .sensor-temp { font-size: 2.1rem; font-weight: 800; color: #111827; margin: 6px 0; }
+        .sensor-card.alarm .sensor-temp { color: #ef4444; }
+        .sensor-meta { display: flex; justify-content: space-between; font-size: 0.78rem; color: #6b7280; margin-top: 8px; padding-top: 8px; border-top: 1px solid #f3f4f6; }
+
+        /* График (SVG) */
+        .chart-box { background: white; border-radius: 16px; padding: 16px; margin-bottom: 14px; box-shadow: 0 4px 12px rgba(0,0,0,0.04); }
+
+        /* Кнопки */
+        .btn { width: 100%; padding: 14px; border: none; border-radius: 12px; font-size: 0.95rem; font-weight: 600; cursor: pointer; margin-bottom: 10px; transition: 0.2s; }
+        .btn-primary { background: #0055ff; color: white; }
+        .btn-danger { background: #ef4444; color: white; }
+        .btn-secondary { background: #e5e7eb; color: #1f2937; }
+
+        /* Всплывающее пуш-уведомление */
+        .push-banner { position: absolute; top: -120px; left: 12px; right: 12px; background: #1f2937; color: white; padding: 14px; border-radius: 16px; box-shadow: 0 10px 25px rgba(0,0,0,0.3); z-index: 100; transition: 0.4s cubic-bezier(0.18, 0.89, 0.32, 1.28); border-left: 4px solid #ef4444; }
+        .push-banner.show { top: 14px; }
+
+        /* Таблица журнала */
+        table { width: 100%; border-collapse: collapse; background: white; border-radius: 12px; overflow: hidden; font-size: 0.82rem; margin-bottom: 14px; }
+        th, td { padding: 10px; text-align: left; border-bottom: 1px solid #f3f4f6; }
+        th { background: #f9fafb; color: #4b5563; }
+
+        /* Нижняя навигация */
+        .bottom-nav { background: white; border-top: 1px solid #e5e7eb; display: flex; justify-content: space-around; padding: 10px 0 14px; }
+        .nav-item { display: flex; flex-direction: column; align-items: center; font-size: 0.72rem; color: #6b7280; cursor: pointer; gap: 4px; }
+        .nav-item.active { color: #0055ff; font-weight: 700; }
+        .nav-icon { font-size: 1.3rem; }
+
+        /* Чат ИИ */
+        .chat-area { height: 420px; overflow-y: auto; display: flex; flex-direction: column; gap: 8px; padding-bottom: 10px; }
+        .bubble { padding: 10px 14px; border-radius: 14px; max-width: 82%; font-size: 0.9rem; line-height: 1.4; }
+        .bubble.ai { background: white; color: #111827; align-self: flex-start; box-shadow: 0 2px 6px rgba(0,0,0,0.05); }
+        .bubble.me { background: #0055ff; color: white; align-self: flex-end; }
+        .chat-bar { display: flex; gap: 8px; margin-top: 8px; }
+        .chat-bar input { flex: 1; padding: 12px; border: 1px solid #d1d5db; border-radius: 12px; outline: none; }
+
+        @keyframes shake { 0%, 100% { transform: translateX(0); } 25% { transform: translateX(-5px); } 75% { transform: translateX(5px); } }
+    </style>
+</head>
+<body>
+
+<div class="phone-frame">
+    <!-- Пуш-уведомление -->
+    <div class="push-banner" id="pushAlert" onclick="this.classList.remove('show')">
+        <div style="font-size:0.75rem; color:#60a5fa; font-weight:700;">❄️ ColdGuard Bot • Сейчас</div>
+        <div style="font-size:0.88rem; margin-top:4px;"><strong>ТРЕВОГА!</strong> Витрина №1: температура <strong>+7.4 °C</strong> (порог +6.0 °C). Проверьте компрессор!</div>
+    </div>
+
+    <!-- Шапка -->
+    <div class="app-header">
+        <h2>❄️ ColdGuard</h2>
+        <span class="status-pill">Шлюз ESP32: Онлайн</span>
+    </div>
+
+    <!-- ВКЛАДКА 1: ДАТЧИКИ -->
+    <div class="tab-content active" id="tab-sensors">
+        <div id="sensorsList">
+            <div class="sensor-card" id="fridge1">
+                <div class="sensor-top"><span>Датчик DS18B20 #01</span><span id="f1-status" style="color:#10b981; font-weight:600;">● Норма</span></div>
+                <div class="sensor-name">Витрина (Десерты / Молоко)</div>
+                <div class="sensor-temp" id="f1-temp">+3.2 °C</div>
+                <div class="sensor-meta"><span>Порог: +2..+6 °C</span><span>Товар: ~35 000 ₽</span></div>
+            </div>
+
+            <div class="sensor-card">
+                <div class="sensor-top"><span>Датчик DS18B20 #02</span><span style="color:#10b981; font-weight:600;">● Норма</span></div>
+                <div class="sensor-name">Морозильный ларь (Заготовки)</div>
+                <div class="sensor-temp">-18.4 °C</div>
+                <div class="sensor-meta"><span>Порог: -15..-22 °C</span><span>Товар: ~42 000 ₽</span></div>
+            </div>
+        </div>
+
+        <div class="chart-box">
+            <div style="font-size:0.85rem; font-weight:700; margin-bottom:8px;">График температуры (Витрина, 24ч)</div>
+            <svg viewBox="0 0 300 70" style="width:100%; height:70px;">
+                <polyline fill="none" stroke="#0055ff" stroke-width="3" points="0,45 40,42 80,48 120,40 160,44 200,39 240,43 280,41 300,40"/>
+                <line x1="0" y1="15" x2="300" y2="15" stroke="#ef4444" stroke-dasharray="4" stroke-width="1"/>
+                <text x="5" y="12" fill="#ef4444" font-size="9">Критический порог +6.0 °C</text>
+            </svg>
+        </div>
+
+        <button class="btn btn-danger" onclick="triggerAlarm()">🔥 Тест ночной аварии (Демо)</button>
+        <button class="btn btn-secondary" onclick="resetAlarm()">🔄 Вернуть в норму</button>
+    </div>
+
+    <!-- ВКЛАДКА 2: ЖУРНАЛ САНПИН -->
+    <div class="tab-content" id="tab-journal">
+        <h3 style="margin-top:0;">Журнал температур</h3>
+        <p style="font-size:0.85rem; color:#6b7280;">Автоматическая фиксация по форме СанПиН 2.3/2.4.4282-26. Локальный буфер шлюза защищает от потери данных при сбое Wi-Fi.</p>
+        <table>
+            <tr><th>Время</th><th>Камера</th><th>Темп.</th><th>Статус</th></tr>
+            <tr><td>03:00</td><td>Витрина №1</td><td>+3.1 °C</td><td style="color:#10b981;">ОК</td></tr>
+            <tr><td>08:00</td><td>Витрина №1</td><td>+3.3 °C</td><td style="color:#10b981;">ОК</td></tr>
+            <tr><td>12:00</td><td>Витрина №1</td><td>+3.5 °C</td><td style="color:#10b981;">ОК</td></tr>
+            <tr><td>08:00</td><td>Морозилка</td><td>-18.5 °C</td><td style="color:#10b981;">ОК</td></tr>
+            <tr><td>12:00</td><td>Морозилка</td><td>-18.2 °C</td><td style="color:#10b981;">ОК</td></tr>
+        </table>
+        <button class="btn btn-primary" onclick="downloadJournal()">📥 Выгрузить отчёт для проверки</button>
+    </div>
+
+    <!-- ВКЛАДКА 3: ДОБАВИТЬ ДАТЧИК -->
+    <div class="tab-content" id="tab-add">
+        <h3 style="margin-top:0;">Подключить новый датчик</h3>
+        <p style="font-size:0.85rem; color:#6b7280;">Установка занимает 15 минут без вызова мастера: заведите плоский шлейф датчика DS18B20 под уплотнитель дверцы и добавьте устройство ниже.</p>
+        <div style="background:white; padding:16px; border-radius:16px;">
+            <label style="font-size:0.85rem; font-weight:600;">Название холодильника:</label>
+            <input type="text" id="newFridgeName" placeholder="Например: Холодильник Бар" style="width:100%; padding:12px; margin:8px 0 14px; border:1px solid #d1d5db; border-radius:10px;">
+            <label style="font-size:0.85rem; font-weight:600;">ID датчика (с QR-кода на корпусе):</label>
+            <input type="text" value="CG-ESP32-8841" readonly style="width:100%; padding:12px; margin:8px 0 14px; border:1px solid #d1d5db; border-radius:10px; background:#f9fafb; color:#6b7280;">
+            <button class="btn btn-primary" onclick="addSensor()">➕ Привязать датчик</button>
+        </div>
+    </div>
+
+    <!-- ВКЛАДКА 4: ИИ-АГЕНТ -->
+    <div class="tab-content" id="tab-ai">
+        <div class="chat-area" id="chatArea">
+            <div class="bubble ai">Здравствуйте! Я ИИ-инспектор <b>ColdGuard</b>. Подскажу нормы хранения по СанПиН, помогу при поломке холодильника или рассчитаю окупаемость.</div>
+        </div>
+        <div class="chat-bar">
+            <input type="text" id="aiInput" placeholder="Спросите про СанПиН или цену..." onkeypress="if(event.key==='Enter') askAI()">
+            <button class="btn btn-primary" style="width:auto; margin:0; padding:0 18px;" onclick="askAI()">➤</button>
