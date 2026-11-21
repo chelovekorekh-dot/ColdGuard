@@ -1,4 +1,6 @@
-﻿
+Супер, поле редактирования полностью очищено и готово — теперь вставьте полный код Commit changes... в правом верхнем углу.
+Нажмите кнопку Копировать в правом верхнем углу серого блока с кодом, кликните в черном поле редактора на строке 1 (где написано Введите содержимое файла здесь) и нажмите Ctrl + V:
+HTML
 <!DOCTYPE html>
 <html lang="ru">
 <head>
@@ -10,17 +12,11 @@
         body { margin: 0; background: #111827; display: flex; justify-content: center; align-items: center; min-height: 100vh; }
         .phone-frame { width: 100%; max-width: 414px; height: 100vh; max-height: 850px; background: #f3f6fa; display: flex; flex-direction: column; position: relative; overflow: hidden; box-shadow: 0 25px 50px rgba(0,0,0,0.5); }
         @media (min-width: 500px) { .phone-frame { border-radius: 36px; border: 8px solid #1f2937; height: 812px; } }
-        
-        /* Шапка приложения */
         .app-header { background: #0055ff; color: white; padding: 18px 20px 16px; display: flex; justify-content: space-between; align-items: center; }
         .app-header h2 { margin: 0; font-size: 1.25rem; display: flex; align-items: center; gap: 8px; }
         .status-pill { background: rgba(255,255,255,0.2); padding: 4px 10px; border-radius: 12px; font-size: 0.75rem; }
-
-        /* Контент вкладок */
         .tab-content { flex: 1; overflow-y: auto; padding: 16px; display: none; }
         .tab-content.active { display: block; }
-
-        /* Карточки датчиков */
         .sensor-card { background: white; border-radius: 16px; padding: 16px; margin-bottom: 14px; box-shadow: 0 4px 12px rgba(0,0,0,0.04); border-left: 5px solid #10b981; transition: 0.3s; }
         .sensor-card.alarm { border-left-color: #ef4444; background: #fef2f2; animation: shake 0.4s; }
         .sensor-top { display: flex; justify-content: space-between; font-size: 0.85rem; color: #6b7280; }
@@ -28,58 +24,42 @@
         .sensor-temp { font-size: 2.1rem; font-weight: 800; color: #111827; margin: 6px 0; }
         .sensor-card.alarm .sensor-temp { color: #ef4444; }
         .sensor-meta { display: flex; justify-content: space-between; font-size: 0.78rem; color: #6b7280; margin-top: 8px; padding-top: 8px; border-top: 1px solid #f3f4f6; }
-
-        /* График (SVG) */
         .chart-box { background: white; border-radius: 16px; padding: 16px; margin-bottom: 14px; box-shadow: 0 4px 12px rgba(0,0,0,0.04); }
-
-        /* Кнопки */
         .btn { width: 100%; padding: 14px; border: none; border-radius: 12px; font-size: 0.95rem; font-weight: 600; cursor: pointer; margin-bottom: 10px; transition: 0.2s; }
         .btn-primary { background: #0055ff; color: white; }
         .btn-danger { background: #ef4444; color: white; }
         .btn-secondary { background: #e5e7eb; color: #1f2937; }
-
-        /* Всплывающее пуш-уведомление */
-        .push-banner { position: absolute; top: -120px; left: 12px; right: 12px; background: #1f2937; color: white; padding: 14px; border-radius: 16px; box-shadow: 0 10px 25px rgba(0,0,0,0.3); z-index: 100; transition: 0.4s cubic-bezier(0.18, 0.89, 0.32, 1.28); border-left: 4px solid #ef4444; }
+        .push-banner { position: absolute; top: -120px; left: 12px; right: 12px; background: #1f2937; color: white; padding: 14px; border-radius: 16px; box-shadow: 0 10px 25px rgba(0,0,0,0.3); z-index: 100; transition: 0.4s cubic-bezier(0.18, 0.89, 0.32, 1.28); border-left: 4px solid #ef4444; cursor: pointer; }
         .push-banner.show { top: 14px; }
-
-        /* Таблица журнала */
         table { width: 100%; border-collapse: collapse; background: white; border-radius: 12px; overflow: hidden; font-size: 0.82rem; margin-bottom: 14px; }
         th, td { padding: 10px; text-align: left; border-bottom: 1px solid #f3f4f6; }
         th { background: #f9fafb; color: #4b5563; }
-
-        /* Нижняя навигация */
         .bottom-nav { background: white; border-top: 1px solid #e5e7eb; display: flex; justify-content: space-around; padding: 10px 0 14px; }
         .nav-item { display: flex; flex-direction: column; align-items: center; font-size: 0.72rem; color: #6b7280; cursor: pointer; gap: 4px; }
         .nav-item.active { color: #0055ff; font-weight: 700; }
         .nav-icon { font-size: 1.3rem; }
-
-        /* Чат ИИ */
         .chat-area { height: 420px; overflow-y: auto; display: flex; flex-direction: column; gap: 8px; padding-bottom: 10px; }
         .bubble { padding: 10px 14px; border-radius: 14px; max-width: 82%; font-size: 0.9rem; line-height: 1.4; }
         .bubble.ai { background: white; color: #111827; align-self: flex-start; box-shadow: 0 2px 6px rgba(0,0,0,0.05); }
         .bubble.me { background: #0055ff; color: white; align-self: flex-end; }
         .chat-bar { display: flex; gap: 8px; margin-top: 8px; }
         .chat-bar input { flex: 1; padding: 12px; border: 1px solid #d1d5db; border-radius: 12px; outline: none; }
-
         @keyframes shake { 0%, 100% { transform: translateX(0); } 25% { transform: translateX(-5px); } 75% { transform: translateX(5px); } }
     </style>
 </head>
 <body>
 
 <div class="phone-frame">
-    <!-- Пуш-уведомление -->
     <div class="push-banner" id="pushAlert" onclick="this.classList.remove('show')">
         <div style="font-size:0.75rem; color:#60a5fa; font-weight:700;">❄️ ColdGuard Bot • Сейчас</div>
         <div style="font-size:0.88rem; margin-top:4px;"><strong>ТРЕВОГА!</strong> Витрина №1: температура <strong>+7.4 °C</strong> (порог +6.0 °C). Проверьте компрессор!</div>
     </div>
 
-    <!-- Шапка -->
     <div class="app-header">
         <h2>❄️ ColdGuard</h2>
         <span class="status-pill">Шлюз ESP32: Онлайн</span>
     </div>
 
-    <!-- ВКЛАДКА 1: ДАТЧИКИ -->
     <div class="tab-content active" id="tab-sensors">
         <div id="sensorsList">
             <div class="sensor-card" id="fridge1">
@@ -110,7 +90,6 @@
         <button class="btn btn-secondary" onclick="resetAlarm()">🔄 Вернуть в норму</button>
     </div>
 
-    <!-- ВКЛАДКА 2: ЖУРНАЛ САНПИН -->
     <div class="tab-content" id="tab-journal">
         <h3 style="margin-top:0;">Журнал температур</h3>
         <p style="font-size:0.85rem; color:#6b7280;">Автоматическая фиксация по форме СанПиН 2.3/2.4.4282-26. Локальный буфер шлюза защищает от потери данных при сбое Wi-Fi.</p>
@@ -125,7 +104,6 @@
         <button class="btn btn-primary" onclick="downloadJournal()">📥 Выгрузить отчёт для проверки</button>
     </div>
 
-    <!-- ВКЛАДКА 3: ДОБАВИТЬ ДАТЧИК -->
     <div class="tab-content" id="tab-add">
         <h3 style="margin-top:0;">Подключить новый датчик</h3>
         <p style="font-size:0.85rem; color:#6b7280;">Установка занимает 15 минут без вызова мастера: заведите плоский шлейф датчика DS18B20 под уплотнитель дверцы и добавьте устройство ниже.</p>
@@ -138,7 +116,6 @@
         </div>
     </div>
 
-    <!-- ВКЛАДКА 4: ИИ-АГЕНТ -->
     <div class="tab-content" id="tab-ai">
         <div class="chat-area" id="chatArea">
             <div class="bubble ai">Здравствуйте! Я ИИ-инспектор <b>ColdGuard</b>. Подскажу нормы хранения по СанПиН, помогу при поломке холодильника или рассчитаю окупаемость.</div>
@@ -146,3 +123,89 @@
         <div class="chat-bar">
             <input type="text" id="aiInput" placeholder="Спросите про СанПиН или цену..." onkeypress="if(event.key==='Enter') askAI()">
             <button class="btn btn-primary" style="width:auto; margin:0; padding:0 18px;" onclick="askAI()">➤</button>
+        </div>
+    </div>
+
+    <div class="bottom-nav">
+        <div class="nav-item active" onclick="switchTab('sensors', this)">
+            <span class="nav-icon">🌡️</span>
+            <span>Датчики</span>
+        </div>
+        <div class="nav-item" onclick="switchTab('journal', this)">
+            <span class="nav-icon">📋</span>
+            <span>Журнал</span>
+        </div>
+        <div class="nav-item" onclick="switchTab('add', this)">
+Use code with caution.
+➕
+Добавить
+
+
+🤖
+ИИ-Агент
+
+
+function switchTab(tabId, el) {
+document.querySelectorAll('.tab-content').forEach(t => t.classList.remove('active'));
+document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('активный'));
+document.getElementById('tab-' + tabId).classList.add('активный');
+if (el) el.classList.add('активный');
+}
+функция triggerAlarm() {
+const card = document.getElementById('fridge1');
+card.classList.add('тревога');
+документ .getElementById('f1-temp').innerText = '+7.4 °C';
+document.getElementById('f1-status').innerText = '⚠️ ТРЕВОГА (+1.8°/15м)';
+document.getElementById('f1-status').style.color = '#ef4444';
+document.getElementById('pushAlert').classList.add('показать');
+}
+функция resetAlarm() {
+постоянная карточка = document.getElementById('fridge1');
+card.classList.remove('тревога');
+document.getElementById('f1-temp').innerText = '+3.2 °C';
+document.getElementById('f1-status').innerText = '● Норма';
+document.getElementById('f1-status').style.color = '#10b981';
+document.getElementById('pushAlert'). classList.remove('показать');
+}
+функция addSensor() {
+const name = document.getElementById('Новое имя файла').value.trim() || 'Холодильник Бар';
+const list = document.getElementById('Список датчиков');
+list.innerHTML += <div class="sensor-card"><div class="sensor-top"><span>Датчик DS18B20 #03 (Новый)</span><span style="color:#10b981; font-weight:600;">● Норма</span></div><div class="sensor-name">${name}</div><div class="sensor-temp">+3.8 °C</div><div class="sensor-meta"><span>Порог: +2..+6 °C</span><span>Подключено по QR</span></div></div>;
+document.getElementById('newFridgeName').value = '';
+switchTab('sensors', document.querySelectorAll('.nav-item')[0]);
+}
+function downloadJournal() {
+const text = "\uFEFFДата;Время;Оборудование;Температура;Заключение СанПиН 2.3/2.4.4282-26\n21.11.2026;08:00;Витрина №1;+3.3 C;Соответствует норме\n21.11.2026;12:00;Витрина №1;+3.5 C;Соответствует норме\n21.11.2026;12:00;Морозильный ларь;-18.2 C;Соответствует норме";
+const blob = new Blob([text], { type: 'text/csv;charset=utf-8;' });
+const a = document.createElement('a');
+a.href = URL.createObjectURL(blob);
+a.download = 'Отчет_ColdGuard_СанПиН.csv';
+a.click();
+}
+function askAI() {
+const input = document.getElementById('aiInput');
+const q = input.value.trim();
+if (!q) return;
+const area = document.getElementById('chatArea');
+area.innerHTML += <div class="bubble me">${q}</div>;
+input.value = '';
+const low = q.toLowerCase();
+let reply = "По СанПиН 2.3/2.4.4282-26 стандартная температура в холодильнике общепита — от +2 до +6 °C. Датчик ColdGuard проверяет её каждую минуту и спасает товар на 20–40 тыс. ₽.";
+if (low.includes('молок') || low.includes('торт') || low.includes('десерт')) reply = "Молочную продукцию и кремовые десерты по СанПиН хранят при +2..+4 °C. Если ночью встанет компрессор, продукт испортится за 2–3 часа — ColdGuard разбудит вас заранее.";
+else if (low.includes('цен') || low.includes('стоит') || low.includes('подписк')) reply = "Комплект (ESP32 + датчик DS18B20) стоит 4 000 ₽, подписка на сервис — 800 ₽/мес. Выручка с 1 точки — 13 600 ₽/год.";
+else if (low.includes('поверк') || low.includes('штраф') || low.includes('роспотреб')) reply = "Наш датчик работает как система аварийного оповещения в паре с недорогим поверенным спиртовым термометром внутри камеры — это полностью снимает вопросы при проверке.";
+setTimeout(() => {
+area.innerHTML += <div class="bubble ai">${reply}</div>;
+area.scrollTop = area.scrollHeight;
+}, 300);
+}
+
+
+
+### После вставки:
+1. Нажмите зелёную кнопку **Commit changes...** в правом верхнем углу и ещё раз **Commit changes** в появившемся окне.
+2. Подождите 40 секунд, переключитесь на соседнюю вкладку с вашим приложением (`ColdGuard App`) и нажмите `Ctrl + F5` — появятся 4 нижние вкладки и заработают все кнопки.
+
+<FollowUp>
+Вставили код и нажали **Commit changes**? Напишите, как всё заработает на вкладке приложения!
+</FollowUp>
